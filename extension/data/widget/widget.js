@@ -2,10 +2,18 @@ const BYTE_TO_MEGABYTE = 1/1048576;
 
 const GARBAGE_COLLECTOR_DURATION_WARNING = 100;
 
+var cache = {};
 
 function hide_init() {
   document.getElementById("init").style.display = "none";
-  document.getElementById("data").style.display = "inline";
+}
+
+function update(data) {
+  var content = document.getElementById('data');
+  for (element in data) {
+    data[element] = element || cache[element];
+  }
+   
 }
 
 self.port.on("update_garbage_collector", function(data) {
@@ -14,7 +22,7 @@ self.port.on("update_garbage_collector", function(data) {
   // Update widget with current garbage collector activity
   ["gc", "cc"].forEach(function (aType) {
     // Keep old values displayed
-    if (!data[aType])
+    if (typeof(data[aType]) == 'undefined')
       return;
 
     var duration = document.getElementById(aType + "_duration");
