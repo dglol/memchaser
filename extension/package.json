@@ -6,10 +6,18 @@
     "fullName": "MemChaser",
     "id": "memchaser@quality.mozilla.org",
     "description": "Chasing garbage collection and memory usage",
-    "preferences": [{
+    "preferences": [
+    {
         "name": "memory.interval",
         "title": "Poll interval for memory information (ms)",
         "type": "integer",
         "value": 2000
-    }]
+    },
+    {
+        "name": "activated.datapoints",
+        "title": "Items that can be displayed on the widget",
+        "type": "string",
+        "value": "resident,gc,cc"
+    }
+    ]
 }

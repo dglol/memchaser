@@ -28,6 +28,7 @@ var gData = {
 };
 
 const MODIFIED_PREFS_PREF = "extensions." + self.id + ".modifiedPrefs";
+const ACTIVATED_DATAPOINTS_PREF = "extensions." + self.id + ".activated.datapoints";
 
 
 exports.main = function (options, callbacks) {
@@ -66,7 +67,7 @@ exports.main = function (options, callbacks) {
       this.port.emit("logging_changed", logger.active);
     }
   });
-
+  
   // If new data from garbage collector is available update global data
   garbage_collector.on("data", function (data) {
     for (var entry in data) {
@@ -82,15 +83,17 @@ exports.main = function (options, callbacks) {
         data[entry].age = (age * 0.001).toFixed(1);
       }
     }
-
-    widget.port.emit("update_garbage_collector", data);
+    
+    data.activated = prefs.get(ACTIVATED_DATAPOINTS_PREF, "resident,gc,cc").split(",");
+    widget.port.emit("update", data);
     logger.log(gData.current);
   });
 
   // If new data for memory usage is available update global data
   memory_reporter.on("data", function (data) {
     gData.current.memory = data;
-    widget.port.emit("update_memory", data);
+    data.activated = prefs.get(ACTIVATED_DATAPOINTS_PREF, "resident,gc,cc").split(",");
+    widget.port.emit("update", data);
     logger.log(gData.current);
   });
 };
