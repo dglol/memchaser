@@ -4,7 +4,12 @@
 
 "use strict";
 
+const self = require("self");
+
 const APP_BRANCH = parseInt(/^[\d]+/.exec(require("xul-app").version)[0]);
+const PREF_MEM_LOGGER = "javascript.options.mem.log";
+const PREF_MODIFIED_PREFS = "extensions." + self.id + ".modifiedPrefs";
+const PREF_POLL_INTERVAL = "extensions." + self.id + ".memory.interval";
 
 
 /**

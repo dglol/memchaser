@@ -1,4 +1,4 @@
-var { Cc, Ci } = require("chrome");
+const { Cc, Ci } = require("chrome");
 
 
 function Logger(aDir) {
@@ -12,13 +12,15 @@ Logger.prototype = {
 
 
   prepareFile: function Logger_prepareFile() {
-    if (!this._dir.exists())
+    if (!this._dir.exists()) {
       this._dir.create(Ci.nsIFile.DIRECTORY_TYPE, 0777);
-    else if (!this._dir.isDirectory())
+    }
+    else if (!this._dir.isDirectory()) {
       throw Error(this._dir.path + " is not a directory.");
+    }
 
     var file = this._dir.clone();
-    file.append(new Date().getTime() + ".log");
+    file.append(Date.now() + ".log");
 
     var foStream = Cc["@mozilla.org/network/file-output-stream;1"]
                    .createInstance(Ci.nsIFileOutputStream);
@@ -48,7 +50,7 @@ Logger.prototype = {
 
       foStream.init(this.file, 0x02 | 0x08 | 0x10, 0666, 0);
 
-      data.timestamp = new Date().getTime();
+      data.timestamp = Date.now();
       var message = JSON.stringify(data);
       console.debug("Logging: '" + message + "'");
 
@@ -56,7 +58,7 @@ Logger.prototype = {
                       createInstance(Ci.nsIConverterOutputStream);
 
       converter.init(foStream, "UTF-8", 0, 0);
-      converter.writeString(message + '\r\n');
+      converter.writeString(message + "\r\n");
       converter.close();
     }
   }

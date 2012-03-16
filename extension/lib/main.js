@@ -4,17 +4,17 @@
 
 "use strict";
 
-var { Cc, Ci } = require("chrome");
+const { Cc, Ci } = require("chrome");
+const { Logger } = require("logger");
 
-var events = require("events");
-var prefs = require("api-utils/preferences-service");
-var self = require("self");
-var widgets = require("widget");
+const events = require("events");
+const prefs = require("api-utils/preferences-service");
+const self = require("self");
+const widgets = require("widget");
 
-var garbage_collector = require("garbage-collector");
-var { Logger } = require("logger");
-var memory_reporter = require("memory-reporter");
-var browser_window = require("window-utils").windowIterator().next();
+const garbage_collector = require("garbage-collector");
+const memory_reporter = require("memory-reporter");
+const browser_window = require("window-utils").windowIterator().next();
 
 const MODIFIED_PREFS_PREF = "extensions." + self.id + ".modifiedPrefs";
 
@@ -53,8 +53,8 @@ exports.main = function (options, callbacks) {
   garbage_collector.on("data", function (data) {
     function getDuration(entry) {
       return entry.duration ||
-             (entry.MaxPause || entry['Max Pause']) ||
-             (entry.Total || entry.TotalTime || entry['Total Time']);
+             (entry.MaxPause || entry["Max Pause"]) ||
+             (entry.Total || entry.TotalTime || entry["Total Time"]);
     }
 
     function isIncremental(entry) {
@@ -75,8 +75,8 @@ exports.main = function (options, callbacks) {
       }
 
       if (entry in gData.previous.garbage_collector) {
-        var currentTime = gData.current.garbage_collector[entry].timestamp.getTime();
-        var previousTime = gData.previous.garbage_collector[entry].timestamp.getTime();
+        var currentTime = gData.current.garbage_collector[entry].timestamp;
+        var previousTime = gData.previous.garbage_collector[entry].timestamp;
         var age = (currentTime - previousTime) - duration;
         data[entry].age = (age * 0.001).toFixed(1);
       }
@@ -121,10 +121,10 @@ exports.onUnload = function (reason) {
 
   // Reset any modified preferences
   if (reason === "disable" || reason === "uninstall") {
-    var modifiedPrefs = JSON.parse(prefs.get(MODIFIED_PREFS_PREF, "{}"));
+    var modifiedPrefs = JSON.parse(prefs.get(config.PREF_MODIFIED_PREFS, "{}"));
     for (var pref in modifiedPrefs) {
       prefs.set(pref, modifiedPrefs[pref]);
     }
-    prefs.reset(MODIFIED_PREFS_PREF);
+    prefs.reset(config.PREF_MODIFIED_PREFS);
   }
 };

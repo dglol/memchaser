@@ -15,8 +15,9 @@ self.port.on("update_garbage_collector", function(data) {
   // Update widget with current garbage collector activity
   ["gc", "cc"].forEach(function (aType) {
     // Keep old values displayed
-    if (!data[aType])
+    if (!data[aType]) {
       return;
+    }
 
     // Check for an incremental GC
     if (aType === "gc") {

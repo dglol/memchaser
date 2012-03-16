@@ -1,5 +1,5 @@
-var { Cc, Ci } = require("chrome");
-var { Logger } = require("memchaser/logger")
+const { Cc, Ci } = require("chrome");
+const { Logger } = require("memchaser/logger")
 
 var dir = Cc["@mozilla.org/file/directory_service;1"]
           .getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile);

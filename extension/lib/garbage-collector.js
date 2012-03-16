@@ -4,17 +4,14 @@
 
 "use strict";
 
-const {Cc, Ci} = require("chrome");
+const { Cc, Ci } = require("chrome");
 const { EventEmitter } = require("api-utils/events");
+
 const prefs = require("api-utils/preferences-service");
 const unload = require("api-utils/unload");
-
 const config = require("config");
 
-Components.utils.import('resource://gre/modules/Services.jsm');
-
-const PREF_MEM_LOGGER = "javascript.options.mem.log";
-const PREF_MODIFIED_PREFS = "extensions." + require("self").id + ".modifiedPrefs";
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 
 const reporter = EventEmitter.compose({
@@ -23,13 +20,14 @@ const reporter = EventEmitter.compose({
     this.on("error", console.exception.bind(console));
 
     // Make sure we clean-up correctly
-    unload.ensure(this, 'unload');
+    unload.ensure(this, "unload");
 
     // For now the logger preference has to be enabled to be able to
     // parse the GC / CC information from the console service messages
-    this._isEnabled = prefs.get(PREF_MEM_LOGGER);
-    if (!this._isEnabled)
+    this._isEnabled = prefs.get(config.PREF_MEM_LOGGER);
+    if (!this._isEnabled) {
       this._enable();
+    }
 
     // When we have to parse console messages find the right data
     switch (config.APP_BRANCH) {
@@ -53,17 +51,19 @@ const reporter = EventEmitter.compose({
   unload: function Reporter_unload() {
     this._removeAllListeners();
 
-    if (this._isEnabled)
+    if (this._isEnabled) {
       Services.console.unregisterListener(this);
+    }
   },
 
-  _enable: function() {
-    var modifiedPrefs = JSON.parse(prefs.get(PREF_MODIFIED_PREFS, "{}"));
-    if (!modifiedPrefs.hasOwnProperty(PREF_MEM_LOGGER)) {
-      modifiedPrefs[PREF_MEM_LOGGER] = prefs.get(PREF_MEM_LOGGER);
+  _enable: function () {
+    var modifiedPrefs = JSON.parse(prefs.get(config.PREF_MODIFIED_PREFS, "{}"));
+    if (!modifiedPrefs.hasOwnProperty(config.PREF_MEM_LOGGER)) {
+      modifiedPrefs[config.PREF_MEM_LOGGER] = prefs.get(config.PREF_MEM_LOGGER);
     }
-    prefs.set(PREF_MEM_LOGGER, true);
-    prefs.set(PREF_MODIFIED_PREFS, JSON.stringify(modifiedPrefs));
+
+    prefs.set(config.PREF_MEM_LOGGER, true);
+    prefs.set(config.PREF_MODIFIED_PREFS, JSON.stringify(modifiedPrefs));
     this._isEnabled = true;
   },
 
@@ -75,8 +75,9 @@ const reporter = EventEmitter.compose({
     var msg = aMessage.message;
 
     var sections = /^(CC|GC)/i.exec(msg);
-    if (sections === null)
+    if (sections === null) {
       return;
+    }
 
     var data = this.parseConsoleMessage(sections[1].toLowerCase(), msg);
 
@@ -102,7 +103,7 @@ const reporter = EventEmitter.compose({
 
     var data = { };
     data[aType] = {
-      timestamp : new Date()
+      timestamp : Date.now()
     };
 
     this._collector_data[aType].forEach(function (aEntry) {
